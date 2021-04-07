@@ -1,3 +1,4 @@
+# encoding=utf-8
 import os, sys, gzip
 import argparse, random, pickle
 import numpy as np
@@ -49,8 +50,8 @@ class CrossData:
             print('Load raw data from %s.' % csv_path_s)
             print('Load raw data from %s.' % csv_path_t)
         else:
-            df_s = get_raw_df(self.path_s)
-            df_t = get_raw_df(self.path_t)
+            df_s = pd.read_csv(self.path_s)
+            df_t = pd.read_csv(self.path_t)
 
             df_s.to_csv(csv_path_s, index=False)
             df_t.to_csv(csv_path_t, index=False)
@@ -235,9 +236,9 @@ if __name__ == '__main__':
         google_model = KeyedVectors.load_word2vec_format('../../GoogleNews-vectors-negative300.vector', binary=False)
         google_vocab = google_model.vocab
 
-    CrossData('book2movie/reviews_Books_5.json.gz', 'book2movie/reviews_Movies_and_TV_5.json.gz',
+    CrossData('data/book_A2S166WSCFIFP5', 'data/movie_A2S166WSCFIFP5',
               ratio=args.ratio, thre_i=30, thre_u=10).dump_pkl()
-    CrossData('movie2music/reviews_Movies_and_TV_5.json.gz', 'movie2music/reviews_CDs_and_Vinyl_5.json.gz',
-              ratio=args.ratio, thre_i=30, thre_u=10).dump_pkl()
-    CrossData('book2music/reviews_Books_5.json.gz', 'book2music/reviews_CDs_and_Vinyl_5.json.gz',
-              ratio=args.ratio, thre_i=30, thre_u=10).dump_pkl()
+    # CrossData('movie2music/reviews_Movies_and_TV_5.json.gz', 'movie2music/reviews_CDs_and_Vinyl_5.json.gz',
+    #           ratio=args.ratio, thre_i=30, thre_u=10).dump_pkl()
+    # CrossData('book2music/reviews_Books_5.json.gz', 'book2music/reviews_CDs_and_Vinyl_5.json.gz',
+    #           ratio=args.ratio, thre_i=30, thre_u=10).dump_pkl()

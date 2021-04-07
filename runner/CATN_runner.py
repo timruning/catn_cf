@@ -5,23 +5,24 @@ from time import time
 from collections import defaultdict
 import pandas as pd
 import argparse
+
 sys.path.append('..')
 from utils.CATN import CATN
-os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 class CATN_RUNNER:
     def __init__(self, data):
         _, _, self.user_num, self.item_num_s, self.item_num_t, _, _, _, _, _, self.train_s, self.train_t, \
-            self.vocab_dict, self.word_embedding, \
-            self.docu_udict_s, self.docu_idict_s, self.docu_udict_t, self.docu_idict_t,\
-            self.auxiliary_docu_udict_s, self.auxiliary_docu_udict_t = data
+        self.vocab_dict, self.word_embedding, \
+        self.docu_udict_s, self.docu_idict_s, self.docu_udict_t, self.docu_idict_t, \
+        self.auxiliary_docu_udict_s, self.auxiliary_docu_udict_t = data
 
         self.data = data
         self.item_ave_rating_s = self.building_ave_item_rating(self.train_s, self.item_num_s)
         self.item_ave_rating_t = self.building_ave_item_rating(self.train_t, self.item_num_t)
         self.reviews = self.get_reviews()
-
 
     def get_reviews(self):
         def reviews2arr(reviews, num):
@@ -48,7 +49,6 @@ class CATN_RUNNER:
                 self.aux_user_reviews_s, self.aux_user_reviews_mask_s,
                 self.aux_user_reviews_t, self.aux_user_reviews_mask_t)
 
-
     @staticmethod
     def building_ave_item_rating(train, item_num):
         item_ave_rating_dict = defaultdict(list)
@@ -57,11 +57,10 @@ class CATN_RUNNER:
             item_ave_rating_dict[item].append(rating)
 
         item_ave_rating = np.zeros([item_num], dtype=np.float32)
-        for item , rating_list in item_ave_rating_dict.items():
+        for item, rating_list in item_ave_rating_dict.items():
             item_ave_rating[item] = np.array(rating_list).mean()
 
         return item_ave_rating
-
 
     def step_train(self, sess):
         self.catn = CATN(data, self.item_ave_rating_s, self.item_ave_rating_t, self.reviews, args, pkl_path)
@@ -82,25 +81,25 @@ parser.add_argument('--lr', type=float, default=0.001)
 parser.add_argument('--batch_size', type=int, default=256)
 parser.add_argument('--max_epoches', type=int, default=200)
 parser.add_argument('--ratio', type=float, default=0.2)
-parser.add_argument('--score_way', type=str, choices=['simple','share','doubleS', 'aux_doubleS'],
+parser.add_argument('--score_way', type=str, choices=['simple', 'share', 'doubleS', 'aux_doubleS'],
                     default='aux_doubleS')
 args = parser.parse_args()
-
 
 if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = str(args.cuda)
     print(args)
-    pkl_paths = ['../dataset/book2movie/crossdata_i30_u10_%.2f.pkl',
-                '../dataset/movie2music/crossdata_i30_u10_%.2f.pkl',
-                '../dataset/book2music/crossdata_i30_u10_%.2f.pkl']
+    # pkl_paths = ['../dataset/book2movie/crossdata_i30_u10_%.2f.pkl',
+    #              '../dataset/movie2music/crossdata_i30_u10_%.2f.pkl',
+    #              '../dataset/book2music/crossdata_i30_u10_%.2f.pkl']
+    pkl_paths = ['../data/crossdata_i30_u10_1.00.pkl']
     pkl_path = pkl_paths[args.pkl_idx]
 
     firtime = time()
-    with open(pkl_path % args.ratio, 'rb') as f:
+    with open(pkl_path, 'rb') as f:
         all_data = pickle.load(f)
     data = all_data[3:]
     udict, idict_s, idict_t = all_data[:3]
-    print("Load data from %s, time: %.2fs." % (pkl_path % args.ratio, time() - firtime))
+    print("Load data from %s, time: %.2fs." % (pkl_path, time() - firtime))
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
