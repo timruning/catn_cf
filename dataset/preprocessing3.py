@@ -230,8 +230,7 @@ class CrossData:
             ratings = df.apply(lambda x: (x['uid'], x['iid'], x['score']), axis=1).tolist()
             return ratings
 
-        pkl_path = self.path_s.replace(self.path_s.split('/')[-1], f'crossdata_{source}_{target}.pkl' %
-                                       (self.thre_i, self.thre_u, self.ratio))
+        pkl_path = self.path_s.replace(self.path_s.split('/')[-1], f'crossdata_{source}_{target}.pkl')
         with open(pkl_path, 'wb') as f:
             data = [self.udict, self.idict_s, self.idict_t, self.coldstart_user_set, self.common_user_set,
                     self.user_num, self.item_num_s, self.item_num_t,
