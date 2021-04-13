@@ -13,7 +13,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 
 class CATN_RUNNER:
-    def __init__(self, data):
+    def __init__(self, data,source,target):
         _, _, self.user_num, self.item_num_s, self.item_num_t, _, _, _, _, _, self.train_s, self.train_t, \
         self.vocab_dict, self.word_embedding, \
         self.docu_udict_s, self.docu_idict_s, self.docu_udict_t, self.docu_idict_t, \
@@ -23,6 +23,8 @@ class CATN_RUNNER:
         self.item_ave_rating_s = self.building_ave_item_rating(self.train_s, self.item_num_s)
         self.item_ave_rating_t = self.building_ave_item_rating(self.train_t, self.item_num_t)
         self.reviews = self.get_reviews()
+        self.source = source
+        self.target = target
 
     def get_reviews(self):
         def reviews2arr(reviews, num):
@@ -64,7 +66,7 @@ class CATN_RUNNER:
 
     def step_train(self, sess):
         self.catn = CATN(data, self.item_ave_rating_s, self.item_ave_rating_t, self.reviews, args, pkl_path)
-        self.catn.train_step(sess)
+        self.catn.train_step(sess,self.source,self.target)
 
 
 parser = argparse.ArgumentParser()
@@ -93,7 +95,7 @@ if __name__ == '__main__':
     # pkl_paths = ['../dataset/book2movie/crossdata_i30_u10_%.2f.pkl',
     #              '../dataset/movie2music/crossdata_i30_u10_%.2f.pkl',
     #              '../dataset/book2music/crossdata_i30_u10_%.2f.pkl']
-    pkl_paths = ['../data/crossdata_i30_u10_1.00.pkl']
+    pkl_paths = [f'crossdata_{args.source}_{args.target}.pkl']
     pkl_path = pkl_paths[args.pkl_idx]
 
     firtime = time()
@@ -106,5 +108,5 @@ if __name__ == '__main__':
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     with tf.Session(config=config) as sess:
-        catn_runner = CATN_RUNNER(data)
+        catn_runner = CATN_RUNNER(data,args.source,args.target)
         catn_runner.step_train(sess)

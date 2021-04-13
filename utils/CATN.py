@@ -302,7 +302,7 @@ class CATN:
 
         return loss_ratings
 
-    def train_step(self, sess):
+    def train_step(self, sess,source,target):
         saver = tf.train.Saver()
         sess.run(tf.global_variables_initializer())
         print('Start training...')
@@ -373,7 +373,7 @@ class CATN:
             if e >= 4 and vali_mse_list.index(min(vali_mse_list)) <= e - 4:
                 break
             if test_mse == min(test_mse_list):
-                saver.save(sess, "../model/model1_%d" % e)
+                saver.save(sess, f"../model/model1_{source}_{target}_{e}")
 
         best_vali_index = vali_mse_list.index(min(vali_mse_list))
         print('Finish training, epoch %d, test MSE: %.3f; best test MSE: %.3f.'
