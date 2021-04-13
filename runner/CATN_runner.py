@@ -95,7 +95,7 @@ if __name__ == '__main__':
     # pkl_paths = ['../dataset/book2movie/crossdata_i30_u10_%.2f.pkl',
     #              '../dataset/movie2music/crossdata_i30_u10_%.2f.pkl',
     #              '../dataset/book2music/crossdata_i30_u10_%.2f.pkl']
-    pkl_paths = [f'../data/crossdata_{args.source}_{args.target}.pkl']
+    pkl_paths = [f'../data/dataframe/crossdata_{args.source}_{args.target}.pkl']
     pkl_path = pkl_paths[args.pkl_idx]
 
     firtime = time()
