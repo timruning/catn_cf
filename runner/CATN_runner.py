@@ -31,7 +31,7 @@ class CATN_RUNNER:
 
             for _id, review in reviews.items():
                 Reviews_mask[_id] = (review != -1)
-                review = [20000 if w == -1 else w for w in review]
+                review = [0 if w == -1 else w for w in review]
                 review = np.array(review)
                 Reviews[_id] = review
 
