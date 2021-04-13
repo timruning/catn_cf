@@ -43,7 +43,12 @@ class CrossData:
             return df
 
         def read_csv(path):
-            df = pd.read_csv(path, sep="\t")
+            dd  =  os.listdir(path)
+            csv_path = dd[0]
+            for v in dd:
+                if v.endswith("csv"):
+                    csv_path =v
+            df = pd.read_csv(os.path.join(path,csv_path), sep="\t")
             df['index'] = df.index
             # df['uidd'] = df['uid']
             # df.drop(['uid'],axis=1)
@@ -220,12 +225,12 @@ class CrossData:
 
         return cut_docu_udict, cut_docu_idict, cut_auxiliary_docu_udict
 
-    def dump_pkl(self):
+    def dump_pkl(self,source,target):
         def extract_ratings(df):
             ratings = df.apply(lambda x: (x['uid'], x['iid'], x['score']), axis=1).tolist()
             return ratings
 
-        pkl_path = self.path_s.replace(self.path_s.split('/')[-1], 'crossdata_i%d_u%d_%.2f.pkl' %
+        pkl_path = self.path_s.replace(self.path_s.split('/')[-1], f'crossdata_{source}_{target}.pkl' %
                                        (self.thre_i, self.thre_u, self.ratio))
         with open(pkl_path, 'wb') as f:
             data = [self.udict, self.idict_s, self.idict_t, self.coldstart_user_set, self.common_user_set,
@@ -246,6 +251,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--ratio', type=float, default=1.0)
     parser.add_argument('--info', type=bool, default=True)
+    parser.add_argument('--source', type=str, default="609")
+    parser.add_argument('--target', type=str, default="647")
     args = parser.parse_args()
 
     if not args.info:
@@ -253,9 +260,9 @@ if __name__ == '__main__':
         google_model = KeyedVectors.load_word2vec_format('../../GoogleNews-vectors-negative300.vector', binary=False)
         google_vocab = google_model.vocab
 
-    data = CrossData('../data/609.csv', '../data/647.csv',
+    data = CrossData(f'../data/dataframe/{args.source}', f'../data/dataframe/{args.target}',
                      ratio=args.ratio, thre_i=30, thre_u=10)
-    data.dump_pkl()
+    data.dump_pkl(args.source,args.target)
     # CrossData('movie2music/reviews_Movies_and_TV_5.json.gz', 'movie2music/reviews_CDs_and_Vinyl_5.json.gz',
     #           ratio=args.ratio, thre_i=30, thre_u=10).dump_pkl()
     # CrossData('book2music/reviews_Books_5.json.gz', 'book2music/reviews_CDs_and_Vinyl_5.json.gz',

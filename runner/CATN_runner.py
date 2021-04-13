@@ -83,6 +83,8 @@ parser.add_argument('--max_epoches', type=int, default=200)
 parser.add_argument('--ratio', type=float, default=0.2)
 parser.add_argument('--score_way', type=str, choices=['simple', 'share', 'doubleS', 'aux_doubleS'],
                     default='aux_doubleS')
+parser.add_argument('--source', type=str, default="609")
+parser.add_argument('--target', type=str, default="647")
 args = parser.parse_args()
 
 if __name__ == '__main__':
