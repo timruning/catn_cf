@@ -42,6 +42,13 @@ class CrossData:
             df = json_normalize(df1['col'])
             return df
 
+        def read_csv(path):
+            df = pd.read_csv(path, sep="\t")
+            df['index'] = df.index
+            # df['uidd'] = df['uid']
+            # df.drop(['uid'],axis=1)
+            return df
+
         def get_raw_df(path):
             df = {}
             for i, d in tqdm(enumerate(parse(path)), ascii=True):
@@ -55,13 +62,13 @@ class CrossData:
         csv_path_t = self.path_t.replace('.json.gz', '.csv')
 
         if os.path.exists(csv_path_s) and os.path.exists(csv_path_t):
-            df_s = read_js_line2csv(csv_path_s)
-            df_t = read_js_line2csv(csv_path_t)
+            df_s = read_csv(csv_path_s)
+            df_t = read_csv(csv_path_t)
             print('Load raw data from %s.' % csv_path_s)
             print('Load raw data from %s.' % csv_path_t)
         else:
-            df_s = read_js_line2csv(self.path_s)
-            df_t = read_js_line2csv(self.path_t)
+            df_s = read_csv(self.path_s)
+            df_t = read_csv(self.path_t)
 
             df_s.to_csv(csv_path_s, index=False)
             df_t.to_csv(csv_path_t, index=False)
@@ -71,37 +78,37 @@ class CrossData:
         return df_s, df_t
 
     def filterout(self, df_s, df_t, thre_i, thre_u):
-        index_s = df_s[["overall", "asin"]].groupby('asin').count() >= thre_i
-        index_t = df_t[["overall", "asin"]].groupby('asin').count() >= 30
-        item_s = set(index_s[index_s['overall'] == True].index)
-        item_t = set(index_t[index_t['overall'] == True].index)
-        df_s = df_s[df_s['asin'].isin(item_s)]
-        df_t = df_t[df_t['asin'].isin(item_t)]
+        index_s = df_s[["index", "pid"]].groupby('pid').count() >= thre_i
+        index_t = df_t[["index", "pid"]].groupby('pid').count() >= 30
+        item_s = set(index_s[index_s['index'] == True].index)
+        item_t = set(index_t[index_t['index'] == True].index)
+        df_s = df_s[df_s['pid'].isin(item_s)]
+        df_t = df_t[df_t['pid'].isin(item_t)]
 
-        index_s = df_s[["overall", "reviewerID"]].groupby('reviewerID').count() >= thre_u
-        index_t = df_t[["overall", "reviewerID"]].groupby('reviewerID').count() >= thre_u
-        user_s = set(index_s[index_s['overall'] == True].index)
-        user_t = set(index_t[index_t['overall'] == True].index)
-        df_s = df_s[df_s['reviewerID'].isin(user_s)]
-        df_t = df_t[df_t['reviewerID'].isin(user_t)]
+        index_s = df_s[["index", "uid"]].groupby('uid').count() >= thre_u
+        index_t = df_t[["index", "uid"]].groupby('uid').count() >= thre_u
+        user_s = set(index_s[index_s['index'] == True].index)
+        user_t = set(index_t[index_t['index'] == True].index)
+        df_s = df_s[df_s['uid'].isin(user_s)]
+        df_t = df_t[df_t['uid'].isin(user_t)]
 
         return df_s, df_t
 
     def convert_idx(self):
-        uiterator = count(0)
+        uiterator = count(1)
         udict = defaultdict(lambda: next(uiterator))
-        [udict[user] for user in self.df_s["reviewerID"].tolist() + self.df_t["reviewerID"].tolist()]
-        iiterator_s = count(0)
+        [udict[user] for user in self.df_s["uid"].tolist() + self.df_t["uid"].tolist()]
+        iiterator_s = count(1)
         idict_s = defaultdict(lambda: next(iiterator_s))
-        [idict_s[item] for item in self.df_s["asin"]]
-        iiterator_t = count(0)
+        [idict_s[item] for item in self.df_s["pid"]]
+        iiterator_t = count(1)
         idict_t = defaultdict(lambda: next(iiterator_t))
-        [idict_t[item] for item in self.df_t["asin"]]
+        [idict_t[item] for item in self.df_t["pid"]]
 
-        self.df_s['uid'] = self.df_s['reviewerID'].map(lambda x: udict[x])
-        self.df_t['uid'] = self.df_t['reviewerID'].map(lambda x: udict[x])
-        self.df_s['iid'] = self.df_s['asin'].map(lambda x: idict_s[x])
-        self.df_t['iid'] = self.df_t['asin'].map(lambda x: idict_t[x])
+        self.df_s['uid'] = self.df_s['uid'].map(lambda x: udict[x])
+        self.df_t['uid'] = self.df_t['uid'].map(lambda x: udict[x])
+        self.df_s['iid'] = self.df_s['pid'].map(lambda x: idict_s[x])
+        self.df_t['iid'] = self.df_t['pid'].map(lambda x: idict_t[x])
 
         user_set_s = set(self.df_s['uid'])
         item_set_s = set(self.df_s['iid'])
@@ -114,7 +121,7 @@ class CrossData:
         assert len(item_set_t) == len(idict_t)
 
         self.user_num_s, self.item_num_s, self.user_num_t, self.item_num_t, self.overlap_num_user, self.user_num = \
-            len(user_set_s), len(item_set_s), len(user_set_t), len(item_set_t), len(overlap_user_set), len(all_user_set)
+            len(user_set_s) +1, len(item_set_s) +1, len(user_set_t) +1, len(item_set_t) + 1, len(overlap_user_set) +1 , len(all_user_set)+1
 
         print('Source domain users %d, items %d, ratings %d.' % (self.user_num_s, self.item_num_s, len(self.df_s)))
         print('Target domain users %d, items %d, ratings %d.' % (self.user_num_t, self.item_num_t, len(self.df_t)))
@@ -151,8 +158,8 @@ class CrossData:
                vali, test
 
     def get_w2v(self):
-        all_text = self.df_s['reviewText'].tolist()
-        all_text.extend(self.df_t['reviewText'].tolist())
+        all_text = self.df_s['name'].tolist()
+        all_text.extend(self.df_t['name'].tolist())
         vectorizer = TfidfVectorizer(max_df=0.5, stop_words={'english'}, max_features=20000)
         tfidf = vectorizer.fit_transform(all_text)
         vocab_dict = vectorizer.vocabulary_
@@ -168,7 +175,7 @@ class CrossData:
         return vocab_dict, word_embedding
 
     def get_documents(self, df, user_set):
-        reviews = [list(map(lambda x: self.vocab_dict.get(x, -1), review.split(' '))) for review in df['reviewText']]
+        reviews = [list(map(lambda x: self.vocab_dict.get(x, -1), review.split(' '))) for review in df['name']]
         reviews = [np.array(review)[np.array(review) != -1].tolist() for review in reviews]
         df = df.copy()
         df['review_idx'] = reviews
@@ -182,19 +189,19 @@ class CrossData:
         print('Constructing auxiliary documents...')
         df_aux = df[~df['uid'].isin(user_set)]
         for idx in tqdm(df_aux.index, ascii=True):
-            row = df_aux[['uid', 'iid', 'overall', 'review_idx']].loc[idx]
+            row = df_aux[['uid', 'iid', 'index', 'review_idx']].loc[idx]
             user, item, rating, review = row[0], row[1], row[2], row[3]
 
-            exact_matches = df_aux[(df_aux['iid'] == item) & (df_aux['overall'] == rating)]
+            exact_matches = df_aux[(df_aux['iid'] == item) & (df_aux['index'] == rating)]
             if not exact_matches.empty:
                 auxiliary_docu_udict[user].extend(exact_matches.sample(1)['review_idx'].to_list()[0])
                 continue
-            elif not df_aux[(df_aux['iid'] == item) & (df_aux['overall'] == rating + 1)].empty:
-                up_matches = df_aux[(df_aux['iid'] == item) & (df_aux['overall'] == rating + 1)]
+            elif not df_aux[(df_aux['iid'] == item) & (df_aux['index'] == rating + 1)].empty:
+                up_matches = df_aux[(df_aux['iid'] == item) & (df_aux['index'] == rating + 1)]
                 auxiliary_docu_udict[user].extend(up_matches.sample(1)['review_idx'].to_list()[0])
                 continue
             else:
-                down_matches = df_aux[(df_aux['iid'] == item) & (df_aux['overall'] == rating - 1)]
+                down_matches = df_aux[(df_aux['iid'] == item) & (df_aux['index'] == rating - 1)]
                 auxiliary_docu_udict[user].extend(down_matches.sample(1)['review_idx'].to_list()[0])
 
         max_length = 500
@@ -215,7 +222,7 @@ class CrossData:
 
     def dump_pkl(self):
         def extract_ratings(df):
-            ratings = df.apply(lambda x: (x['uid'], x['iid'], x['overall']), axis=1).tolist()
+            ratings = df.apply(lambda x: (x['uid'], x['iid'], x['score']), axis=1).tolist()
             return ratings
 
         pkl_path = self.path_s.replace(self.path_s.split('/')[-1], 'crossdata_i%d_u%d_%.2f.pkl' %
@@ -246,7 +253,7 @@ if __name__ == '__main__':
         google_model = KeyedVectors.load_word2vec_format('../../GoogleNews-vectors-negative300.vector', binary=False)
         google_vocab = google_model.vocab
 
-    data = CrossData('../data/book', '../data/movie',
+    data = CrossData('../data/609.csv', '../data/647.csv',
                      ratio=args.ratio, thre_i=30, thre_u=10)
     data.dump_pkl()
     # CrossData('movie2music/reviews_Movies_and_TV_5.json.gz', 'movie2music/reviews_CDs_and_Vinyl_5.json.gz',
