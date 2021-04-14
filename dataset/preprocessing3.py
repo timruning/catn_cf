@@ -267,10 +267,15 @@ if __name__ == '__main__':
         print('Loading GoogleNews w2v model...')
         google_model = KeyedVectors.load_word2vec_format('../../GoogleNews-vectors-negative300.vector', binary=False)
         google_vocab = google_model.vocab
+    data_list = [611, 605, 609, 615, 620, 604, 622, 602,
+                 618, 647, 616, 619, 612, 607, 628, 601, 625, 626, 627, 610, 614, 613]
+    for v in data_list:
+        for u in data_list:
+            if v != u:
+                data = CrossData(f'../data/dataframe/{str(v)}', f'../data/dataframe/{str(u)}',
+                                 ratio=args.ratio, thre_i=30, thre_u=10)
+                data.dump_pkl(str(v), str(u))
 
-    data = CrossData(f'../data/dataframe/{args.source}', f'../data/dataframe/{args.target}',
-                     ratio=args.ratio, thre_i=30, thre_u=10)
-    data.dump_pkl(args.source, args.target)
     # CrossData('movie2music/reviews_Movies_and_TV_5.json.gz', 'movie2music/reviews_CDs_and_Vinyl_5.json.gz',
     #           ratio=args.ratio, thre_i=30, thre_u=10).dump_pkl()
     # CrossData('book2music/reviews_Books_5.json.gz', 'book2music/reviews_CDs_and_Vinyl_5.json.gz',
