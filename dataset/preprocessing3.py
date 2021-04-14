@@ -11,6 +11,7 @@ from gensim.models import KeyedVectors
 from sklearn.feature_extraction.text import TfidfVectorizer
 import json
 from pandas import json_normalize
+import re
 
 
 class CrossData:
@@ -43,12 +44,12 @@ class CrossData:
             return df
 
         def read_csv(path):
-            dd  =  os.listdir(path)
+            dd = os.listdir(path)
             csv_path = dd[0]
             for v in dd:
                 if v.endswith("csv"):
-                    csv_path =v
-            df = pd.read_csv(os.path.join(path,csv_path), sep="\t")
+                    csv_path = v
+            df = pd.read_csv(os.path.join(path, csv_path), sep="\t")
             df['index'] = df.index
             # df['uidd'] = df['uid']
             # df.drop(['uid'],axis=1)
@@ -126,7 +127,8 @@ class CrossData:
         assert len(item_set_t) == len(idict_t)
 
         self.user_num_s, self.item_num_s, self.user_num_t, self.item_num_t, self.overlap_num_user, self.user_num = \
-            len(user_set_s) +1, len(item_set_s) +1, len(user_set_t) +1, len(item_set_t) + 1, len(overlap_user_set) +1 , len(all_user_set)+1
+            len(user_set_s) + 1, len(item_set_s) + 1, len(user_set_t) + 1, len(item_set_t) + 1, len(
+                overlap_user_set) + 1, len(all_user_set) + 1
 
         print('Source domain users %d, items %d, ratings %d.' % (self.user_num_s, self.item_num_s, len(self.df_s)))
         print('Target domain users %d, items %d, ratings %d.' % (self.user_num_t, self.item_num_t, len(self.df_t)))
@@ -180,7 +182,13 @@ class CrossData:
         return vocab_dict, word_embedding
 
     def get_documents(self, df, user_set):
-        reviews = [list(map(lambda x: self.vocab_dict.get(x, -1), review.split(' '))) for review in df['name']]
+        def cleanStr(review: str):
+            par = re.compile("\W")
+            s = re.sub(par, ' ', review.lower())
+            return s.strip()
+
+        reviews = [list(map(lambda x: self.vocab_dict.get(x, -1), re.split('\s+', cleanStr(review)))) for review in
+                   df['name']]
         reviews = [np.array(review)[np.array(review) != -1].tolist() for review in reviews]
         df = df.copy()
         df['review_idx'] = reviews
@@ -225,7 +233,7 @@ class CrossData:
 
         return cut_docu_udict, cut_docu_idict, cut_auxiliary_docu_udict
 
-    def dump_pkl(self,source,target):
+    def dump_pkl(self, source, target):
         def extract_ratings(df):
             ratings = df.apply(lambda x: (x['uid'], x['iid'], x['score']), axis=1).tolist()
             return ratings
@@ -261,7 +269,7 @@ if __name__ == '__main__':
 
     data = CrossData(f'../data/dataframe/{args.source}', f'../data/dataframe/{args.target}',
                      ratio=args.ratio, thre_i=30, thre_u=10)
-    data.dump_pkl(args.source,args.target)
+    data.dump_pkl(args.source, args.target)
     # CrossData('movie2music/reviews_Movies_and_TV_5.json.gz', 'movie2music/reviews_CDs_and_Vinyl_5.json.gz',
     #           ratio=args.ratio, thre_i=30, thre_u=10).dump_pkl()
     # CrossData('book2music/reviews_Books_5.json.gz', 'book2music/reviews_CDs_and_Vinyl_5.json.gz',
