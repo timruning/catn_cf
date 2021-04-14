@@ -12,6 +12,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 import json
 from pandas import json_normalize
 import re
+import random
 
 
 class CrossData:
@@ -68,13 +69,13 @@ class CrossData:
         csv_path_t = self.path_t.replace('.json.gz', '.csv')
 
         if os.path.exists(csv_path_s) and os.path.exists(csv_path_t):
-            df_s = read_csv(csv_path_s)
-            df_t = read_csv(csv_path_t)
+            df_s = read_csv(csv_path_s).sample(frac=1).reset_index(drop=True)
+            df_t = read_csv(csv_path_t).sample(frac=1).reset_index(drop=True)
             print('Load raw data from %s.' % csv_path_s)
             print('Load raw data from %s.' % csv_path_t)
         else:
-            df_s = read_csv(self.path_s)
-            df_t = read_csv(self.path_t)
+            df_s = read_csv(self.path_s).sample(frac=1).reset_index(drop=True)
+            df_t = read_csv(self.path_t).sample(frac=1).reset_index(drop=True)
 
             df_s.to_csv(csv_path_s, index=False)
             df_t.to_csv(csv_path_t, index=False)
