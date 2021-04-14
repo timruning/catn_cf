@@ -259,8 +259,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--ratio', type=float, default=1.0)
     parser.add_argument('--info', type=bool, default=True)
-    parser.add_argument('--source', type=str, default="609")
-    parser.add_argument('--target', type=str, default="647")
     args = parser.parse_args()
 
     if not args.info:
@@ -272,6 +270,7 @@ if __name__ == '__main__':
     for v in data_list:
         for u in data_list:
             if v != u:
+                print(u, v)
                 data = CrossData(f'../data/dataframe/{str(v)}', f'../data/dataframe/{str(u)}',
                                  ratio=args.ratio, thre_i=30, thre_u=10)
                 data.dump_pkl(str(v), str(u))
