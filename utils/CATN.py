@@ -370,7 +370,7 @@ class CATN:
             vali_mse_list.append(round(Decimal(vali_mse), 4))
             test_mse_list.append(round(Decimal(test_mse), 4))
 
-            if e >= 4 and vali_mse_list.index(min(vali_mse_list)) <= e - 4:
+            if e >= 4 and vali_mse_list.index(min(vali_mse_list)) <= e - 10:
                 break
             if test_mse == min(test_mse_list):
                 saver.save(sess, f"../model/model1_{source}_{target}_{e}")
