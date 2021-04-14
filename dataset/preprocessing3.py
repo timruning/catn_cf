@@ -203,20 +203,29 @@ class CrossData:
         print('Constructing auxiliary documents...')
         df_aux = df[~df['uid'].isin(user_set)]
         for idx in tqdm(df_aux.index, ascii=True):
-            row = df_aux[['uid', 'iid', 'index', 'review_idx']].loc[idx]
-            user, item, rating, review = row[0], row[1], row[2], row[3]
+            row = df_aux[['uid', 'iid', 'catid1', 'catid2', 'catid3', 'score', 'review_idx']].loc[idx]
+            user, item, cat1, cat2, cat3, rating, review = row[0], row[1], row[2], row[3],row[4], row[5], row[6]
 
-            exact_matches = df_aux[(df_aux['iid'] == item) & (df_aux['index'] == rating)]
+            if cat3 != -1:
+                exact_matches = df_aux[(df_aux['catid3'] == cat3) & (df_aux['score'] == rating)]
+                if not exact_matches.empty:
+                    auxiliary_docu_udict[user].extend(exact_matches.sample(1)['review_idx'].to_list()[0])
+                    continue
+
+            exact_matches = df_aux[(df_aux['catid2'] == cat2) & (df_aux['score'] == rating)]
             if not exact_matches.empty:
                 auxiliary_docu_udict[user].extend(exact_matches.sample(1)['review_idx'].to_list()[0])
                 continue
-            elif not df_aux[(df_aux['iid'] == item) & (df_aux['index'] == rating + 1)].empty:
-                up_matches = df_aux[(df_aux['iid'] == item) & (df_aux['index'] == rating + 1)]
-                auxiliary_docu_udict[user].extend(up_matches.sample(1)['review_idx'].to_list()[0])
+            elif rating > 0:
+                exact_matches = df_aux[(df_aux['catid2'] == cat2) & (df_aux['score'] > 0)]
+                if not exact_matches.empty:
+                    auxiliary_docu_udict[user].extend(exact_matches.sample(1)['review_idx'].to_list()[0])
+                    continue
+
+            exact_matches = df_aux[(df_aux['catid1'] == cat1) & (df_aux['score'] == rating)]
+            if not exact_matches.empty:
+                auxiliary_docu_udict[user].extend(exact_matches.sample(1)['review_idx'].to_list()[0])
                 continue
-            else:
-                down_matches = df_aux[(df_aux['iid'] == item) & (df_aux['index'] == rating - 1)]
-                auxiliary_docu_udict[user].extend(down_matches.sample(1)['review_idx'].to_list()[0])
 
         max_length = 500
         for u, docu in docu_udict.items():
