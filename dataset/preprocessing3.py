@@ -277,6 +277,9 @@ if __name__ == '__main__':
         google_model = KeyedVectors.load_word2vec_format('../../GoogleNews-vectors-negative300.vector', binary=False)
         google_vocab = google_model.vocab
 
+    data_list = [611, 605, 609, 615, 620, 604, 622, 602,
+                 618, 647, 616, 619, 612, 607, 628, 601, 625, 626, 627, 610, 614, 613]
+
     data = CrossData(f'../data/dataframe/{args.source}', f'../data/dataframe/{args.target}',
                      ratio=args.ratio, thre_i=30, thre_u=10)
     data.dump_pkl(args.source, args.target)
