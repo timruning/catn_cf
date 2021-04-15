@@ -81,7 +81,7 @@ parser.add_argument('--dropout_rate', type=float, default=0.8)
 parser.add_argument('--regulazation_rate', type=float, default=1e-5)
 parser.add_argument('--lr', type=float, default=0.001)
 parser.add_argument('--batch_size', type=int, default=256)
-parser.add_argument('--max_epoches', type=int, default=200)
+parser.add_argument('--max_epoches', type=int, default=1)
 parser.add_argument('--ratio', type=float, default=0.2)
 parser.add_argument('--score_way', type=str, choices=['simple', 'share', 'doubleS', 'aux_doubleS'],
                     default='aux_doubleS')
