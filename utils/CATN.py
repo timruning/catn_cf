@@ -24,7 +24,7 @@ class CATN:
         self.vocab = {v: k for k, v in self.vocab_dict.items()}
         self.tmp_likelihood = tf.constant(0, dtype=tf.float32, name='tmp_likelihood')
         self.word_embeddings = tf.Variable(self.word_embeddings, dtype=tf.float32, name='pre_word_embeddings')
-
+        self.log_path = "../log/logs"
         self.get_placeholder()
         self.inference()
 
@@ -302,7 +302,10 @@ class CATN:
 
         return loss_ratings
 
-    def train_step(self, sess,source,target):
+    def train_step(self, sess, source, target):
+        train_writer = tf.compat.v1.summary.FileWriter(self.log_path, sess.graph)
+        run_options = tf.RunOptions(trace_level=tf.RunOptions.FULL_TRACE)
+        run_metadata = tf.RunMetadata()
         saver = tf.train.Saver()
         sess.run(tf.global_variables_initializer())
         print('Start training...')
@@ -355,8 +358,8 @@ class CATN:
                         self.users_ph: users_batch_t,
                         self.items_ph: items_batch_t,
                         self.ratings_ph: ratings_batch_t,
-                    })
-
+                    }, options=run_options, run_metadata=run_metadata)
+                train_writer.add_run_metadata(run_metadata, 'step%d' % batch_idx)
                 if not math.isnan(loss_val_s):
                     loss_total += loss_val_s
                 if not math.isnan(loss_val_t):
