@@ -350,7 +350,7 @@ class CATN:
 
                 if not users_batch_t:
                     continue
-                if batch_idx % 10000 != 501:
+                if batch_idx % 10000 != 0:
                     _, loss_val_t = sess.run(
                         [self.train_op, self.loss], feed_dict={
                             self.domain_ph: False,
