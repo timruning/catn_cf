@@ -361,7 +361,8 @@ class CATN:
                     }, options=run_options, run_metadata=run_metadata)
                 train_writer.add_run_metadata(run_metadata, 'step%d' % batch_idx)
 
-                if batch_idx % 10000 == 999:
+                if batch_idx % 10000 == 1:
+                    print(f"../model/model1_{source}_{target}_{e}")
                     saver.save(sess, f"../model/model1_{source}_{target}_{e}")
 
                 if not math.isnan(loss_val_s):
