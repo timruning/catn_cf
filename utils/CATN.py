@@ -362,8 +362,8 @@ class CATN:
                 train_writer.add_run_metadata(run_metadata, 'step%d' % batch_idx)
 
                 if batch_idx % 10000 == 1:
-                    print(f"../model/model1_{source}_{target}_{e}")
-                    saver.save(sess, f"../model/model1_{source}_{target}_{e}")
+                    print(f"../model/{source}_{target}/model1_{e}")
+                    saver.save(sess, f"../model/{source}_{target}/model1_{e}")
 
                 if not math.isnan(loss_val_s):
                     loss_total += loss_val_s
