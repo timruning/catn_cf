@@ -350,26 +350,20 @@ class CATN:
 
                 if not users_batch_t:
                     continue
-                if batch_idx % 10000 != 0:
-                    _, loss_val_t = sess.run(
-                        [self.train_op, self.loss], feed_dict={
-                            self.domain_ph: False,
-                            self.dropout_rate_ph: self.args.dropout_rate,
-                            self.users_ph: users_batch_t,
-                            self.items_ph: items_batch_t,
-                            self.ratings_ph: ratings_batch_t,
-                        })
-                else:
-                    _, loss_val_t = sess.run(
-                        [self.train_op, self.loss], feed_dict={
-                            self.domain_ph: False,
-                            self.dropout_rate_ph: self.args.dropout_rate,
-                            self.users_ph: users_batch_t,
-                            self.items_ph: items_batch_t,
-                            self.ratings_ph: ratings_batch_t,
-                        }, options=run_options, run_metadata=run_metadata)
-                    train_writer.add_run_metadata(run_metadata, 'step%d' % batch_idx)
+
+                _, loss_val_t = sess.run(
+                    [self.train_op, self.loss], feed_dict={
+                        self.domain_ph: False,
+                        self.dropout_rate_ph: self.args.dropout_rate,
+                        self.users_ph: users_batch_t,
+                        self.items_ph: items_batch_t,
+                        self.ratings_ph: ratings_batch_t,
+                    }, options=run_options, run_metadata=run_metadata)
+                train_writer.add_run_metadata(run_metadata, 'step%d' % batch_idx)
+
+                if batch_idx % 10000 == 999:
                     saver.save(sess, f"../model/model1_{source}_{target}_{e}")
+
                 if not math.isnan(loss_val_s):
                     loss_total += loss_val_s
                 if not math.isnan(loss_val_t):
