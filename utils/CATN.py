@@ -359,7 +359,7 @@ class CATN:
                         self.items_ph: items_batch_t,
                         self.ratings_ph: ratings_batch_t,
                     }, options=run_options, run_metadata=run_metadata)
-                train_writer.add_run_metadata(run_metadata, 'step%d' % batch_idx)
+                train_writer.add_run_metadata(run_metadata, f'{e}_step{batch_idx}')
 
                 if batch_idx % 10000 == 1:
                     print(f"../model/{source}_{target}/model1_{e}")
