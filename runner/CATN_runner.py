@@ -1,5 +1,7 @@
-import tensorflow as tf
 import pickle, os, sys
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+import tensorflow as tf
 import numpy as np
 from time import time
 from collections import defaultdict
@@ -9,8 +11,7 @@ import argparse
 sys.path.append('..')
 from utils.CATN import CATN
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+
 
 class CATN_RUNNER:
     def __init__(self, data,source,target):
@@ -106,7 +107,7 @@ if __name__ == '__main__':
     print("Load data from %s, time: %.2fs." % (pkl_path, time() - firtime))
 
     config = tf.ConfigProto()
-    config.gpu_options.allow_growth = False
+    # config.gpu_options.allow_growth = False
     with tf.Session(config=config) as sess:
         catn_runner = CATN_RUNNER(data,args.source,args.target)
         catn_runner.step_train(sess)
