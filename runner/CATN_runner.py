@@ -1,5 +1,5 @@
 import pickle, os, sys
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 import tensorflow as tf
 import numpy as np
@@ -72,7 +72,7 @@ class CATN_RUNNER:
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--pkl_idx', type=int, default=0)
-parser.add_argument('--cuda', type=int, default=0)
+parser.add_argument('--cuda', type=int, default=-1)
 parser.add_argument('--docu_length', type=int, default=500)
 parser.add_argument('--num_filters', type=int, default=50)
 parser.add_argument('--num_aspects', type=int, default=5)
@@ -106,8 +106,8 @@ if __name__ == '__main__':
     udict, idict_s, idict_t = all_data[:3]
     print("Load data from %s, time: %.2fs." % (pkl_path, time() - firtime))
 
-    config = tf.ConfigProto()
+    # config = tf.ConfigProto()
     # config.gpu_options.allow_growth = False
-    with tf.Session(config=config) as sess:
+    with tf.Session() as sess:
         catn_runner = CATN_RUNNER(data,args.source,args.target)
         catn_runner.step_train(sess)
