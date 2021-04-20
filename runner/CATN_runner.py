@@ -10,7 +10,7 @@ sys.path.append('..')
 from utils.CATN import CATN
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-os.environ['CUDA_VISIBLE_DEVICES'] = ''
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 class CATN_RUNNER:
     def __init__(self, data,source,target):
