@@ -106,7 +106,7 @@ if __name__ == '__main__':
     print("Load data from %s, time: %.2fs." % (pkl_path, time() - firtime))
 
     config = tf.ConfigProto()
-    config.gpu_options.allow_growth = True
+    config.gpu_options.allow_growth = False
     with tf.Session(config=config) as sess:
         catn_runner = CATN_RUNNER(data,args.source,args.target)
         catn_runner.step_train(sess)
