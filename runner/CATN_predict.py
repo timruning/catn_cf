@@ -102,7 +102,7 @@ if __name__ == '__main__':
     #              '../dataset/book2music/crossdata_i30_u10_%.2f.pkl']
     pkl_paths = [f'../data/dataframe/crossdata_{args.source}_{args.target}.pkl']
     pkl_path = pkl_paths[args.pkl_idx]
-    output = f"../data/embedding_{args.source}_{args.target}"
+    output = f"../data/embedding/embedding_{args.source}_{args.target}"
     firtime = time()
     with open(pkl_path, 'rb') as f:
         all_data = pickle.load(f)
