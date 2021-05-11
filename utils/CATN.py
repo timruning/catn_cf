@@ -329,8 +329,8 @@ class CATN:
                 s = f"{items_batch_s[j]}\t{t}\n"
                 file_s.write(s)
 
-            print(f"_item_reviews_repr_s: {_item_reviews_repr_s.shape}")
-            print(_item_reviews_repr_s_reduce)
+            # print(f"_item_reviews_repr_s: {_item_reviews_repr_s_reduce.shape}")
+            # print(_item_reviews_repr_s_reduce)
 
         train_users_list_t, train_items_list_t, train_ratings_list_t = zip(*self.train_common_t)
         n = int(len(train_users_list_t) / 500)
@@ -355,8 +355,8 @@ class CATN:
                 s = f"{items_batch_t[j]}\t{t}\n"
                 file_t.write(s)
 
-            print(f"_item_reviews_repr_s: {_item_reviews_repr_s.shape}")
-            print(_item_reviews_repr_s_reduce)
+            # print(f"_item_reviews_repr_s: {_item_reviews_repr_s.shape}")
+            # print(_item_reviews_repr_s_reduce)
 
     def train_step(self, sess, source, target):
         train_writer = tf.compat.v1.summary.FileWriter(self.log_path, sess.graph)
