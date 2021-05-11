@@ -94,7 +94,7 @@ class CATN:
         self.item_inputs = tf.nn.embedding_lookup(item_reviews, self.items_ph)
         self.item_inputs_mask = tf.expand_dims(tf.nn.embedding_lookup(item_reviews_mask, self.items_ph), -1)
         self.item_reviews_repr = tf.nn.embedding_lookup(self.word_embeddings, self.item_inputs) * self.item_inputs_mask
-
+        self.item_reviews_repr_reduce = tf.nn.l2_normalize(tf.reduce_mean(self.item_reviews_repr, axis=1))
         v_u = tf.concat(asp_vs_u, axis=-1)
         v_i = tf.concat(asp_vs_i, axis=-1)
         tmp_S = tf.matmul(v_u, convert_mtrx, transpose_a=True)
@@ -301,6 +301,62 @@ class CATN:
         loss_ratings = tf.reduce_mean(tf.squared_difference(self.ratings_ph, self.predict_ratings))
 
         return loss_ratings
+
+    def predict(self, sess, source, target, idict_s, idict_t, output):
+        saver = tf.train.Saver()
+        saver.restore(sess, f"../model/{source}_{target}/model1_0")
+
+        file_s = open(output + f"/{source}", "w")
+
+        train_users_list_s, train_items_list_s, train_ratings_list_s = zip(*self.train_common_s)
+        n = int(len(train_users_list_s) / 500)
+        for i in range(n):
+            users_batch_s = train_users_list_s[i * 500:min(len(train_users_list_s), i * 500 + 500)]
+            items_batch_s = train_items_list_s[i * 500:min(len(train_users_list_s), i * 500 + 500)]
+            ratings_batch_s = train_ratings_list_s[i * 500:min(len(train_users_list_s), i * 500 + 500)]
+            _, _item_reviews_repr_s_reduce = sess.run(
+                [self.train_op, self.item_reviews_repr_reduce], feed_dict={
+                    self.domain_ph: True,
+                    self.dropout_rate_ph: 1,
+                    self.users_ph: users_batch_s,
+                    self.items_ph: items_batch_s,
+                    self.ratings_ph: ratings_batch_s,
+                })
+
+            for j in range(len(items_batch_s)):
+                t = [str(v) for v in _item_reviews_repr_s_reduce[j]]
+                t = ",".join(t)
+                s = f"{items_batch_s[j]}\t{t}\n"
+                file_s.write(s)
+
+            print(f"_item_reviews_repr_s: {_item_reviews_repr_s.shape}")
+            print(_item_reviews_repr_s_reduce)
+
+        train_users_list_t, train_items_list_t, train_ratings_list_t = zip(*self.train_common_t)
+        n = int(len(train_users_list_t) / 500)
+        file_t = open(output + f"/{target}", "w")
+        for i in range(n):
+            users_batch_t = train_users_list_t[i * 500:min(len(train_users_list_t), i * 500 + 500)]
+            items_batch_t = train_items_list_t[i * 500:min(len(train_users_list_t), i * 500 + 500)]
+            ratings_batch_t = train_ratings_list_t[i * 500:min(len(train_users_list_t), i * 500 + 500)]
+
+            _, _item_reviews_repr_reduce_t = sess.run(
+                [self.train_op, self.item_reviews_repr_reduce], feed_dict={
+                    self.domain_ph: False,
+                    self.dropout_rate_ph: 1,
+                    self.users_ph: users_batch_t,
+                    self.items_ph: items_batch_t,
+                    self.ratings_ph: ratings_batch_t,
+                })
+
+            for j in range(len(items_batch_t)):
+                t = [str(v) for v in _item_reviews_repr_reduce_t[j]]
+                t = ",".join(t)
+                s = f"{items_batch_t[j]}\t{t}\n"
+                file_t.write(s)
+
+            print(f"_item_reviews_repr_s: {_item_reviews_repr_s.shape}")
+            print(_item_reviews_repr_s_reduce)
 
     def train_step(self, sess, source, target):
         train_writer = tf.compat.v1.summary.FileWriter(self.log_path, sess.graph)

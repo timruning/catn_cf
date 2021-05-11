@@ -1,4 +1,5 @@
 import pickle, os, sys
+
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 import tensorflow as tf
@@ -12,9 +13,8 @@ sys.path.append('..')
 from utils.CATN import CATN
 
 
-
 class CATN_RUNNER:
-    def __init__(self, data,source,target):
+    def __init__(self, data, source, target):
         _, _, self.user_num, self.item_num_s, self.item_num_t, _, _, _, _, _, self.train_s, self.train_t, \
         self.vocab_dict, self.word_embedding, \
         self.docu_udict_s, self.docu_idict_s, self.docu_udict_t, self.docu_idict_t, \
@@ -67,11 +67,11 @@ class CATN_RUNNER:
 
     def step_train(self, sess):
         self.catn = CATN(data, self.item_ave_rating_s, self.item_ave_rating_t, self.reviews, args, pkl_path)
-        self.catn.train_step(sess,self.source,self.target)
+        self.catn.train_step(sess, self.source, self.target)
 
-
-
-
+    def step_predict(self, sess, idict_s, idict_t, output):
+        self.catn = CATN(data, self.item_ave_rating_s, self.item_ave_rating_t, self.reviews, args, pkl_path)
+        self.catn.predict(sess, self.source, self.target, idict_s, idict_t, output)
 
 
 parser = argparse.ArgumentParser()
@@ -90,8 +90,8 @@ parser.add_argument('--max_epoches', type=int, default=1)
 parser.add_argument('--ratio', type=float, default=0.2)
 parser.add_argument('--score_way', type=str, choices=['simple', 'share', 'doubleS', 'aux_doubleS'],
                     default='aux_doubleS')
-parser.add_argument('--source', type=str, default="609")
-parser.add_argument('--target', type=str, default="647")
+parser.add_argument('--source', type=str, default="610")
+parser.add_argument('--target', type=str, default="622")
 args = parser.parse_args()
 
 if __name__ == '__main__':
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     #              '../dataset/book2music/crossdata_i30_u10_%.2f.pkl']
     pkl_paths = [f'../data/dataframe/crossdata_{args.source}_{args.target}.pkl']
     pkl_path = pkl_paths[args.pkl_idx]
-
+    output = f"../data/embedding_{args.source}_{args.target}"
     firtime = time()
     with open(pkl_path, 'rb') as f:
         all_data = pickle.load(f)
@@ -113,5 +113,5 @@ if __name__ == '__main__':
     # config = tf.ConfigProto()
     # config.gpu_options.allow_growth = False
     with tf.Session() as sess:
-        catn_runner = CATN_RUNNER(data,args.source,args.target)
-        catn_runner.step_train(sess)
+        catn_runner = CATN_RUNNER(data, args.source, args.target)
+        catn_runner.step_predict(sess, idict_s, idict_t, output)

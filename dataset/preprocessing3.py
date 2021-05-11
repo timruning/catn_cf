@@ -204,7 +204,7 @@ class CrossData:
         df_aux = df[~df['uid'].isin(user_set)]
         for idx in tqdm(df_aux.index, ascii=True):
             row = df_aux[['uid', 'iid', 'catid1', 'catid2', 'catid3', 'score', 'review_idx']].loc[idx]
-            user, item, cat1, cat2, cat3, rating, review = row[0], row[1], row[2], row[3],row[4], row[5], row[6]
+            user, item, cat1, cat2, cat3, rating, review = row[0], row[1], row[2], row[3], row[4], row[5], row[6]
 
             if cat3 != -1:
                 exact_matches = df_aux[(df_aux['catid3'] == cat3) & (df_aux['score'] == rating)]
@@ -283,7 +283,6 @@ if __name__ == '__main__':
     data = CrossData(f'../data/dataframe/{args.source}', f'../data/dataframe/{args.target}',
                      ratio=args.ratio, thre_i=30, thre_u=10)
     data.dump_pkl(args.source, args.target)
-
 
     # CrossData('movie2music/reviews_Movies_and_TV_5.json.gz', 'movie2music/reviews_CDs_and_Vinyl_5.json.gz',
     #           ratio=args.ratio, thre_i=30, thre_u=10).dump_pkl()
