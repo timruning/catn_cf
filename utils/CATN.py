@@ -310,7 +310,7 @@ class CATN:
         if not os.path.exists(output):
             os.mkdir(output)
 
-        idict_s_re = dict(zip(idict_s.keys(),idict_s.values()))
+        idict_s_re = dict(zip(idict_s.keys(), idict_s.values()))
         idict_t_re = dict(zip(idict_t.keys(), idict_t.values()))
 
         file_s = open(output + f"/{source}", "w")
@@ -335,9 +335,9 @@ class CATN:
                 t = ",".join(t)
                 s = f"{items_batch_s[j]}\t{idict_s_re[items_batch_s[j]]}\t{t}\n"
                 file_s.write(s)
-
-            # print(f"_item_reviews_repr_s: {_item_reviews_repr_s_reduce.shape}")
-            # print(_item_reviews_repr_s_reduce)
+            if i % 10 == 0:
+                print(f"_item_reviews_repr_s: {_item_reviews_repr_s_reduce.shape}")
+                print(_item_reviews_repr_s_reduce[:1])
 
         train_users_list_t, train_items_list_t, train_ratings_list_t = zip(*self.train_common_t)
         n = int(len(train_users_list_t) / 500)
@@ -362,8 +362,9 @@ class CATN:
                 s = f"{items_batch_t[j]}\t{idict_t_re[items_batch_t[j]]}\t{t}\n"
                 file_t.write(s)
 
-            # print(f"_item_reviews_repr_s: {_item_reviews_repr_s.shape}")
-            # print(_item_reviews_repr_s_reduce)
+            if i % 10 == 0:
+                print(f"_item_reviews_repr_s: {_item_reviews_repr_reduce_t.shape}")
+                print(_item_reviews_repr_reduce_t[:1])
 
     def train_step(self, sess, source, target):
         train_writer = tf.compat.v1.summary.FileWriter(self.log_path, sess.graph)
