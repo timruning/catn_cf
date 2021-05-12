@@ -7,6 +7,7 @@ from decimal import Decimal
 from operator import itemgetter
 from collections import Counter, defaultdict
 from scipy.sparse.csr import csr_matrix
+import os
 
 
 class CATN:
@@ -306,6 +307,12 @@ class CATN:
         saver = tf.train.Saver()
         saver.restore(sess, f"../model/{source}_{target}/model1_0")
 
+        if not os.path.exists(output):
+            os.mkdir(output)
+
+        idict_s_re = dict(zip(idict_s.keys(),idict_s.values()))
+        idict_t_re = dict(zip(idict_t.keys(), idict_t.values()))
+
         file_s = open(output + f"/{source}", "w")
 
         train_users_list_s, train_items_list_s, train_ratings_list_s = zip(*self.train_common_s)
@@ -326,7 +333,7 @@ class CATN:
             for j in range(len(items_batch_s)):
                 t = [str(v) for v in _item_reviews_repr_s_reduce[j]]
                 t = ",".join(t)
-                s = f"{items_batch_s[j]}\t{t}\n"
+                s = f"{items_batch_s[j]}\t{idict_s_re[items_batch_s[j]]}\t{t}\n"
                 file_s.write(s)
 
             # print(f"_item_reviews_repr_s: {_item_reviews_repr_s_reduce.shape}")
@@ -334,7 +341,7 @@ class CATN:
 
         train_users_list_t, train_items_list_t, train_ratings_list_t = zip(*self.train_common_t)
         n = int(len(train_users_list_t) / 500)
-        file_t = open(output + f"/{target}", "w")
+        file_t = open(output + f"/{target}", "w+")
         for i in range(n):
             users_batch_t = train_users_list_t[i * 500:min(len(train_users_list_t), i * 500 + 500)]
             items_batch_t = train_items_list_t[i * 500:min(len(train_users_list_t), i * 500 + 500)]
@@ -352,7 +359,7 @@ class CATN:
             for j in range(len(items_batch_t)):
                 t = [str(v) for v in _item_reviews_repr_reduce_t[j]]
                 t = ",".join(t)
-                s = f"{items_batch_t[j]}\t{t}\n"
+                s = f"{items_batch_t[j]}\t{idict_t_re[items_batch_t[j]]}\t{t}\n"
                 file_t.write(s)
 
             # print(f"_item_reviews_repr_s: {_item_reviews_repr_s.shape}")
