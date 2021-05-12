@@ -310,8 +310,8 @@ class CATN:
         if not os.path.exists(output):
             os.mkdir(output)
 
-        idict_s_re = dict(zip(idict_s.keys(), idict_s.values()))
-        idict_t_re = dict(zip(idict_t.keys(), idict_t.values()))
+        idict_s_re = dict(zip(idict_s.values(), idict_s.keys()))
+        idict_t_re = dict(zip(idict_t.values(), idict_t.keys()))
 
         file_s = open(output + f"/{source}", "w")
 
@@ -333,6 +333,9 @@ class CATN:
             for j in range(len(items_batch_s)):
                 t = [str(v) for v in _item_reviews_repr_s_reduce[j]]
                 t = ",".join(t)
+                if not idict_s_re.keys().__contains__(items_batch_s[j]):
+                    print(items_batch_s[j])
+                    print(idict_s_re)
                 s = f"{items_batch_s[j]}\t{idict_s_re[items_batch_s[j]]}\t{t}\n"
                 file_s.write(s)
             if i % 10 == 0:
