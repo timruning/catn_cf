@@ -8,9 +8,10 @@ import numpy as np
 import pandas as pd
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--source', type=str, default="609")
-parser.add_argument('--target', type=str, default="647")
+parser.add_argument('--source', type=str, default="601")
+parser.add_argument('--target', type=str, default="602")
 args = parser.parse_args()
+
 
 def to_list(vec: str):
     return [float(v) for v in vec.split(",")]
@@ -26,7 +27,7 @@ if __name__ == '__main__':
 
     df_source_vec = np.array(list(df_source["vector"])).astype('float32')
     normalize_L2(df_source_vec)
-    index = faiss.IndexFlatIP(64)
+    index = faiss.IndexFlatIP(300)
     index.train(df_source_vec)
     print(index.is_trained)
 
@@ -41,16 +42,16 @@ if __name__ == '__main__':
     id_index = list(df_source["pid"])
     id_index1 = list(df_target["pid"])
 
-    file = open("../data_elit/result", "w")
+    if not os.path.exists("../data/id_pair/"):
+        os.mkdir("../data/id_pair/")
+
+    file = open(f"../data/id_pair/result_{args.source}_{args.target}", "w")
     for i, v in enumerate(I):
         key = id_index[i]
         v1 = [str(id_index1[t]) for t in v]
         value = ",".join(v1)
         line = "{}\t{}\n".format(key, value)
         file.write(line)
-
-    if not os.path.exists("../data/id_pair/"):
-        os.mkdir("../data/id_pair/")
 
     file = open(f"../data/id_pair/{args.source}_{args.target}", "w")
     for i, (v, w) in enumerate(zip(I, D)):
