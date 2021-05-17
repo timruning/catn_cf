@@ -19,10 +19,12 @@ def to_list(vec: str):
 
 if __name__ == '__main__':
     path = f"../data/embedding/embedding_{args.source}_{args.target}"
-    df_source = pd.read_csv(f"{path}/{args.source}", sep="\t", names=['id', "pid", "vector"]).drop_duplicates()
+    df_source = pd.read_csv(f"{path}/{args.source}", sep="\t", names=['id', "pid", "vector"])\
+        .drop_duplicates("pid")
     df_source["vector"] = df_source["vector"].map(lambda x: to_list(x))
 
-    df_target = pd.read_csv(f"{path}/{args.target}", sep="\t", names=['id', "pid", "vector"]).drop_duplicates()
+    df_target = pd.read_csv(f"{path}/{args.target}", sep="\t", names=['id', "pid", "vector"])\
+        .drop_duplicates("pid")
     df_target["vector"] = df_target["vector"].map(lambda x: to_list(x))
 
     df_source_vec = np.array(list(df_source["vector"])).astype('float32')
