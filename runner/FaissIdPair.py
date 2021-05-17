@@ -10,7 +10,7 @@ import pandas as pd
 parser = argparse.ArgumentParser()
 parser.add_argument('--source', type=str, default="609")
 parser.add_argument('--target', type=str, default="647")
-
+args = parser.parse_args()
 
 def to_list(vec: str):
     return [float(v) for v in vec.split(",")]
